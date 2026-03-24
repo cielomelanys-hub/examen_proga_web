@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ restaurante['nombre'] }} – Menú del Almuerzo</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <header class="header">
+
+        <div class="header__inner">
+
+            <div class="header__logo">
+
+                <div class="logo-wrap">
+
+                    <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="logo">
+
+                </div>
+
+                <span class="header__brand">
+                    {{ restaurante['nombre'] }}
+                </span>
+
+            </div>
+
+            <nav class="header__nav">
+
+                <a href="#inicio">Inicio</a>
+                <a href="#menu">Menú</a>
+                <a href="#contacto">Contacto</a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <section class="hero" id="inicio">
+
+        <div class="hero__bg">
+
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Portada">
+
+            <div class="hero__overlay"></div>
+
+        </div>
+
+        <div class="hero__content">
+
+            <p class="hero__kicker">
+                ✦ Restaurante Boliviano ✦
+            </p>
+
+            <h1 class="hero__title">
+                {{ restaurante['eslogan'] }}
+            </h1>
+
+            <div class="hero__rule"></div>
+
+            <p class="hero__desc">
+                {{ restaurante['descripcion'] }}
+            </p>
+
+            <a href="#menu" class="hero__btn">
+                Ver Menú de Hoy
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <section class="menu-section" id="menu">
+
+        <div class="container">
+
+            <div class="section-head">
+
+                <span class="section-head__tag">
+                    Almuerzo del día
+                </span>
+
+                <h2 class="section-head__title">
+                    Menú <em>{{ fecha }}</em>
+                </h2>
+
+                <p class="section-head__sub">
+                    Platos preparados con ingredientes frescos y recetas de tradición boliviana
+                </p>
+
+            </div>
+
+            {% if menu %}
+
+            {% set categorias = menu | map(attribute='categoria') | unique | list %}
+
+            {% for cat in categorias %}
+
+            <div class="menu-block" id="cat-{{ loop.index }}">
+
+                <div class="menu-block__head">
+
+                    <h3>{{ cat }}</h3>
+
+                </div>
+
+                <div class="menu-grid">
+
+                    {% for plato in menu if plato['categoria'] == cat %}
+
+                    <article class="card{% if plato['disponible'] != 'Sí' %} card--agotado{% endif %}">
+
+                        <div class="card__img-box">
+
+                            {% if 'silpancho' in plato['nombre_plato']|lower %}
+                            <img src="{{ url_for('static', filename='images/silpancho.jpg') }}" alt="Silpancho">
+
+                            {% elif 'fricase' in plato['nombre_plato']|lower %}
+                            <img src="{{ url_for('static', filename='images/fricase.jpg') }}"
+                                alt="Fricase Paceño">
+
+                            {% elif 'mocochinchi' in plato['nombre_plato']|lower %}
+                            <img src="{{ url_for('static', filename='images/mocochinchi.jpg') }}" alt="Mocochinchi">
+
+                            {% elif 'tumbo' in plato['nombre_plato']|lower %}
+                            <img src="{{ url_for('static', filename='images/tumbo.jpg') }}" alt="Jugo de Tumbo">
+
+                            {% elif 'flan' in plato['nombre_plato']|lower %}
+                            <img src="{{ url_for('static', filename='images/flan_casero.jpg') }}" alt="Flan Casero">
+
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/mani.jpg') }}" alt="Plato">
+                            {% endif %}
+
+                            <span class="card__price-bubble">
+                                Bs. {{ "%.2f"|format(plato['precio']) }}
+                            </span>
+
+                            {% if plato['disponible'] == 'Sí' %}
+                            <span class="card__status card__status--ok">✓</span>
+                            {% else %}
+                            <span class="card__status card__status--no">✗</span>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="card__info">
+
+                            <div class="card__meta">
+
+                                <span class="card__categoria">
+                                    {{ plato['categoria'] }}
+                                </span>
+
+                                {% if plato['disponible'] != 'Sí' %}
+
+                                <span class="card__agotado-label">
+                                    Agotado
+                                </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <h4 class="card__nombre">
+                                {{ plato['nombre_plato'] }}
+                            </h4>
+
+                            <p class="card__descripcion">
+                                {{ plato['descripcion'] }}
+                            </p>
+
+                            <div class="card__footer">
+
+                                <strong class="card__precio">
+                                    Bs. {{ "%.2f"|format(plato['precio']) }}
+                                </strong>
+
+                                <span
+                                    class="card__disp {% if plato['disponible'] == 'Sí' %}card__disp--si{% else %}card__disp--no{% endif %}">
+                                    {{ plato['disponible'] }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+            {% else %}
+
+            <div class="menu-vacio">
+
+                <div class="menu-vacio__icono">
+                    🍽️
+                </div>
+
+                <p>
+                    No hay platos disponibles para la fecha
+                    <strong>{{ fecha }}</strong>.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <footer class="footer" id="contacto">
+
+        <div class="footer__brand">
+
+            <p class="footer__ornament">
+                ✦ ✦ ✦
+            </p>
+
+            <span class="footer__nombre">
+                {{ restaurante['nombre'] }}
+            </span>
+
+            <p class="footer__eslogan">
+                {{ restaurante['eslogan'] }}
+            </p>
+
+        </div>
+
+        <div class="footer__cols">
+
+            <div class="footer__col">
+
+                <h4>Contacto</h4>
+
+                <p>📍 Av. Camacho #123, La Paz, Bolivia</p>
+
+                <p>📞 +591 2 2441234</p>
+
+                <p>✉️ info@saborboliviano.bo</p>
+
+            </div>
+
+            <div class="footer__col">
+
+                <h4>Horarios</h4>
+
+                <p>Lunes a Viernes: 11:00 – 15:00</p>
+
+                <p>Sábado: 11:00 – 14:00</p>
+
+                <p>Domingo: Cerrado</p>
+
+            </div>
+
+            <div class="footer__col">
+
+                <h4>Navegación</h4>
+
+                <p><a href="#inicio">Inicio</a></p>
+
+                <p><a href="#menu">Menú del día</a></p>
+
+            </div>
+
+        </div>
+
+        <div class="footer__copy">
+            &copy; 2026 {{ restaurante['nombre'] }}. Todos los derechos reservados.
+        </div>
+
+    </footer>
+
+</body>
+
+</html>
